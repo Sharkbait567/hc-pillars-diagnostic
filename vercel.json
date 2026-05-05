@@ -1,19 +1,6 @@
 {
   "version": 2,
-  "routes": [
-    {
-      "src": "/api/chat",
-      "dest": "/api/chat.js"
-    },
-    {
-      "src": "/api/notion",
-      "dest": "/api/notion.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
+  "outputDirectory": "public",
   "functions": {
     "api/chat.js": {
       "maxDuration": 30
