@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Four Pillars Diagnostic — Horizon Coalition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080d14;--bg2:#0d1520;--bg3:#121b28;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--text:#e8edf5;--text2:#8a9ab0;--text3:#4a5a72;--critical:#ff4444;--severe:#e8a020;--building:#3ab86a;--accent:#00d4b4}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100vh}
+.wrapper{max-width:1100px;margin:0 auto;padding:40px 24px}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:16px}
+.org{font-size:11px;letter-spacing:.1em;color:var(--accent);text-transform:uppercase;margin-bottom:8px}
+h1{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-bottom:6px}
+.sub{font-size:14px;color:var(--text2)}
+.live-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--building);margin-right:5px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.notion-status{font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;margin-top:6px}
+.notion-status.connected{color:var(--building)}
+.toggle-group{display:flex;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:4px;gap:4px;align-self:flex-start}
+.toggle-btn{padding:8px 18px;font-size:13px;font-family:inherit;border:none;border-radius:5px;cursor:pointer;transition:all .18s;background:transparent;color:var(--text2);font-weight:500}
+.toggle-btn.active{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}
+.status-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
+.legend-dot{width:8px;height:8px;border-radius:50%}
+.view-label{font-size:12px;color:var(--text3);margin-bottom:16px;font-family:'Space Mono',monospace}
+.pillar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:16px}
+@media(max-width:680px){.pillar-grid{grid-template-columns:1fr}}
+.pillar-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:border-color .18s,background .18s;border-left-width:3px;border-left-style:solid}
+.pillar-card:hover,.pillar-card.selected{border-color:var(--border2);background:var(--bg3)}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px}
+.pillar-name{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.pillar-sub{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4}
+.badge{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px;white-space:nowrap;font-family:'Space Mono',monospace;flex-shrink:0}
+.badge.critical{background:rgba(255,68,68,.15);color:#ff6666}
+.badge.severe{background:rgba(232,160,32,.15);color:#e8a020}
+.badge.stressed{background:rgba(196,184,32,.15);color:#c4b820}
+.badge.building{background:rgba(58,184,106,.15);color:#3ab86a}
+.hbar-track{height:4px;border-radius:2px;background:var(--bg);overflow:hidden;margin:10px 0 5px}
+.hbar-fill{height:100%;border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.hbar-label{font-size:10px;color:var(--text3);margin-bottom:12px;font-family:'Space Mono',monospace}
+.metric-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;gap:8px}
+.metric-row:last-child{border-bottom:none}
+.metric-label{color:var(--text2);line-height:1.3}
+.metric-label.crit{color:#ff6666}
+.metric-val{font-weight:600;color:var(--text);white-space:nowrap;font-family:'Space Mono',monospace;font-size:11px}
+.card-more{font-size:11px;color:var(--text3);text-align:right;margin-top:8px}
+.detail-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;margin-bottom:16px;display:none}
+.detail-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.detail-stripe{width:4px;border-radius:2px;align-self:stretch;min-height:40px;flex-shrink:0}
+.detail-title{font-size:18px;font-weight:600}
+.detail-subtitle{font-size:12px;color:var(--text2);margin-top:3px}
+.detail-summary{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:16px}
+.detail-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}
+@media(max-width:600px){.detail-metrics{grid-template-columns:repeat(2,1fr)}}
+.dmc{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.dmc-label{font-size:10px;color:var(--text3);margin-bottom:4px}
+.dmc-label.crit{color:#ff6666}
+.dmc-val{font-size:14px;font-weight:600;font-family:'Space Mono',monospace}
+.notion-link{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);text-decoration:none;border:1px solid var(--border);border-radius:5px;padding:4px 10px;transition:all .14s;font-family:'Space Mono',monospace;margin-bottom:14px}
+.notion-link:hover{border-color:var(--accent);color:var(--accent)}
+.btn{padding:8px 16px;font-size:12px;font-family:inherit;font-weight:500;border:1px solid var(--border2);border-radius:6px;cursor:pointer;background:var(--bg3);color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.ai-panel{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:16px;display:none}
+.ai-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ai-title{font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:8px}
+.ai-close{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0;line-height:1}
+.ai-close:hover{color:var(--text)}
+.ai-query-label{font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;margin-bottom:8px}
+.ai-response{font-size:13px;line-height:1.7;color:var(--text2)}
+.ai-loading{color:var(--text3);font-family:'Space Mono',monospace;font-size:11px}
+.framework-strip{border-top:1px solid var(--border);padding-top:20px}
+.framework-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:10px;font-family:'Space Mono',monospace}
+.scaffold-tags{display:flex;flex-wrap:wrap;gap:6px}
+.scaffold-tag{padding:4px 12px;font-size:11px;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--text2);font-family:inherit;transition:all .14s}
+.scaffold-tag:hover{border-color:var(--accent);color:var(--accent)}
+.footer{border-top:1px solid var(--border);padding-top:20px;margin-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.footer-left{font-size:11px;color:var(--text3);font-family:'Space Mono',monospace}
+.footer-links{display:flex;gap:16px}
+.footer-links a{font-size:11px;color:var(--text3);text-decoration:none;transition:color .14s}
+.footer-links a:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="header">
+<div>
+<p class="org">Horizon Coalition — Framework Intelligence</p>
+<h1>Four Pillars<br>Diagnostic</h1>
+<p class="sub">United States institutional health · <span id="current-date"></span></p>
+<p class="notion-status" id="notion-status">// checking notion connection...</p>
+</div>
+<div class="toggle-group">
+<button class="toggle-btn active" id="btn-current" onclick="setView('current')">Current state</button>
+<button class="toggle-btn" id="btn-hc" onclick="setView('hc')">HC model</button>
+</div>
+</div>
+<div class="status-legend">
+<div class="legend-item"><div class="legend-dot" style="background:#ff4444"></div>Critical</div>
+<div class="legend-item"><div class="legend-dot" style="background:#e8a020"></div>Severe</div>
+<div class="legend-item"><div class="legend-dot" style="background:#c4b820"></div>Stressed</div>
+<div class="legend-item"><div class="legend-dot" style="background:#3ab86a"></div>Building</div>
+</div>
+<p class="view-label" id="view-label">// US institutional health diagnostics · click any pillar for detail</p>
+<div class="pillar-grid" id="pillar-grid"></div>
+<div class="detail-panel" id="detail-panel"></div>
+<div class="ai-panel" id="ai-panel">
+<div class="ai-header">
+<div class="ai-title"><span class="live-dot"></span>Framework intelligence</div>
+<button class="ai-close" onclick="closeAI()">×</button>
+</div>
+<p class="ai-query-label" id="ai-query-label">// querying...</p>
+<div class="ai-response" id="ai-response"><span class="ai-loading">// loading...</span></div>
+</div>
+<div class="framework-strip">
+<p class="framework-label">Framework scaffolds — click to explore</p>
+<div class="scaffold-tags" id="scaffold-tags"></div>
+</div>
+<div class="footer">
+<div class="footer-left">// Horizon Coalition · HC Living Model</div>
+<div class="footer-links">
+<a href="https://www.notion.so/357cb1ba6eb081d19ff1f90b63caece4" target="_blank">Notion hub</a>
+<a href="https://www.notion.so/356cb1ba6eb081628b64c95e939f5011" target="_blank">Policy plans</a>
+</div>
+</div>
+</div>
+<script>
+const PILLARS=[{id:'builders',name:'Builders',sub:'Infrastructure · Tech · Energy · Housing',accent:'#d4a017',notionId:'357cb1ba6eb08188a36bf5b187eeb6ac',current:{status:'Severe',badge:'severe',healthPct:32,barColor:'#e8a020',metrics:[{l:'Debt held by public / GDP',v:'100.2%',crit:true},{l:'Affordable housing shortage',v:'7.2M units',crit:true},{l:'Unhoused Americans 2024',v:'770,000+',crit:true},{l:'Deficient bridges',v:'42,000+',crit:false},{l:'Without broadband',v:'21M',crit:false},{l:'Roads in poor condition',v:'40%',crit:false}],summary:'Infrastructure rated C-/D by ASCE. Debt crossed 100% of GDP for first time since WWII (March 2026). 770K+ unhoused in 2024, up 18%. The grid was designed for a climate that no longer exists.'},hc:{status:'Active build',badge:'building',healthPct:20,barColor:'#3ab86a',metrics:[{l:'Athenosphere',v:'R&D active',crit:false},{l:'Terra-Pillar transit',v:'Long-term R&D',crit:false},{l:'Water processing',v:'Active',crit:false},{l:'Saltwater batteries',v:'Active R&D',crit:false},{l:'Roman concrete mfg',v:'Active R&D',crit:false},{l:'Blue collar modernization',v:'Deployed',crit:false}],summary:'GAIA Tech projects active across energy, water, materials, and data infrastructure. Builder Guild system designed. Hostel/outpost/gate network architecture complete. Helix Economy infrastructure threshold law drafted.'}},{id:'farmers',name:'Farmers',sub:'Agriculture · Food · Natural Resources',accent:'#3d7a45',notionId:'357cb1ba6eb081928848fda70198f416',current:{status:'Severe',badge:'severe',healthPct:38,barColor:'#e8a020',metrics:[{l:'Food insecure Americans',v:'44 million',crit:true},{l:'Farms lost since 2012',v:'175,000+',crit:true},{l:'Average farmer age',v:'57.5 years',crit:true},{l:'Topsoil degraded',v:'40% of cropland',crit:false},{l:'Aquifer depletion',v:'30–50 yr timeline',crit:true},{l:'Beef processing',v:'4 cos, 85%+',crit:false}],summary:'Succession crisis with no generational transfer plan. Ogallala Aquifer depletion is irreversible on a 30–50 year timeline. Four companies control 85%+ of beef processing. Corporate monoculture produces fragile abundance, not food security.'},hc:{status:'Active build',badge:'building',healthPct:28,barColor:'#3ab86a',metrics:[{l:'Hydroponic Upstate NY',v:'Active',crit:false},{l:'Compost reactor',v:'Active R&D',crit:false},{l:'Gaia Water brand',v:'Active',crit:false},{l:'Nano-Polyp program',v:'Long-term R&D',crit:false},{l:'Wonder Beasts catalog',v:'Design phase',crit:false},{l:'Caravan agri circuits',v:'Designed',crit:false}],summary:'Hydroponic NY converts abandoned upstate real estate into crop production. Compost Reactor closes the waste loop. Gaia Water is the first commercial revenue node. Nano-Polyp de novo synthetic biology is the long-term biological infrastructure replacement for factory farming.'}},{id:'healers',name:'Healers',sub:'Healthcare · Education · Mental Health',accent:'#1b8fa0',notionId:'357cb1ba6eb0815aabffe6bb9797c543',current:{status:'Critical',badge:'critical',healthPct:18,barColor:'#ff4444',metrics:[{l:'Americans uninsured',v:'25–30 million',crit:true},{l:'Annual opioid deaths',v:'80,000+',crit:true},{l:'Adults below 6th grade literacy',v:'54%',crit:true},{l:'Student debt',v:'$1.7 trillion',crit:true},{l:'Rural hospital closures',v:'140+ since 2010',crit:true},{l:'Veteran suicide rate',v:'~17/day',crit:true}],summary:'All six tracked metrics at critical threshold. Healthcare profitable and broken simultaneously. University system produces $1.7T in debt, not skills. Psychiatry weaponized against disabled populations. VA broken.'},hc:{status:'Most advanced',badge:'building',healthPct:42,barColor:'#3ab86a',metrics:[{l:'HWO policy plans',v:'6 complete',crit:false},{l:'Mental health reform',v:'Policy 6 complete',crit:false},{l:'Scholar Spires thesis',v:'Drafted',crit:false},{l:'Mind Haven',v:'Active',crit:false},{l:'Campus incubator',v:'Active',crit:false},{l:'Phoenix Fire vocational',v:'On hold',crit:false}],summary:'Most complete HC architecture — all six policy restructure plans fully scaffolded: HWO registry reform, judicial infrastructure, sex work decriminalization, substance use integration, tech-based harm framework, and mental health reform. Scholar Spires designed as secular monastery knowledge institution.'}},{id:'warriors',name:'Warriors',sub:'Security · Defense · Law Enforcement',accent:'#b84040',notionId:'357cb1ba6eb081658f6fc4f5987ad942',current:{status:'Severe',badge:'severe',healthPct:35,barColor:'#e8a020',metrics:[{l:'Overseas military bases',v:'750+',crit:false},{l:'Veteran suicide per day',v:'~17',crit:true},{l:'Youth eligible to enlist',v:'23% no waiver',crit:false},{l:'MST — chain of command',v:'Unresolved',crit:true},{l:'HWO cases — wrong system',v:'Systemic mismatch',crit:true},{l:'Industrial base',v:'Below wartime pace',crit:false}],summary:'Recruitment at 103% of goals (FY2025) but quality declining. Chain of command protects MST perpetrators. Warriors performing welfare assessment functions they are not equipped for — the core corruption pattern.'},hc:{status:'In design',badge:'building',healthPct:18,barColor:'#3ab86a',metrics:[{l:'VersaBlaster Series D',v:'Active R&D',crit:false},{l:'Tank suit Series E',v:'Active R&D',crit:false},{l:'Gauntlet interface',v:'Active R&D',crit:false},{l:"Governor's Council",v:'Drafted',crit:false},{l:'Warrior redefinition',v:'Policy complete',crit:false},{l:'VA replacement',v:'Designed',crit:false}],summary:"Warriors defined as muscle and security ONLY — no assessment, no welfare function. VersaBlaster, Tank suits, and Gauntlet in active R&D. Governor's Council replaces unilateral commander in chief with collective council. VA replaced by HC infrastructure."}}];
+const SCAFFOLDS=[{n:'Four Pillars',q:'Explain the Four Pillars balance model — Builders, Farmers, Healers, Warriors — and how balance prevents civilizational collapse.'},{n:'Water Economy',q:'Explain the HC Water Economy model — how capital flows like water between pillars and what dams look like.'},{n:'Collapse Loop',q:'Explain the Collapse Loop thesis — why does civilizational collapse keep compounding and what breaks the loop?'},{n:'Bending Model',q:'Explain the Bending Model — how fields and culture emerge as specializations within each pillar.'},{n:'Elite Overproduction',q:"Explain elite overproduction and the credential dam — Turchin's mechanism and how it accelerates collapse."},{n:"Governor's Council",q:"Explain the Governor's Council model — how it replaces the unilateral commander in chief and handles cross-state harm."},{n:'Helix Economy',q:'Explain the Helix Economy — innovation to infrastructure, technofeudalism, and the guild alternative.'},{n:'State Trade',q:'Explain the State Trade and Currency model — states as countries in the council, pillar-standard currency.'},{n:'HC Absorption',q:'How does the Horizon Coalition absorb US institutional functions as the empire declines?'}];
+let curView='current',selPillar=null;
+function setView(v){curView=v;document.getElementById('btn-current').className='toggle-btn'+(v==='current'?' active':'');document.getElementById('btn-hc').className='toggle-btn'+(v==='hc'?' active':'');document.getElementById('view-label').textContent=v==='current'?'// US institutional health diagnostics · click any pillar for detail':'// HC readiness model · solutions designed and deployed per pillar';renderGrid();if(selPillar)renderDetail(selPillar);}
+function selectPillar(id){selPillar=selPillar===id?null:id;renderGrid();const dp=document.getElementById('detail-panel');if(selPillar){renderDetail(selPillar);dp.style.display='block';}else{dp.style.display='none';}}
+function renderGrid(){const g=document.getElementById('pillar-grid');g.innerHTML=PILLARS.map(p=>{const d=p[curView];const sel=selPillar===p.id;return `<div class="pillar-card${sel?' selected':''}" onclick="selectPillar('${p.id}')" style="border-left-color:${p.accent}"><div class="card-header"><div><div class="pillar-name">${p.name}</div><div class="pillar-sub">${p.sub}</div></div><span class="badge ${d.badge}">${d.status}</span></div><div class="hbar-track"><div class="hbar-fill" style="width:${d.healthPct}%;background:${d.barColor}"></div></div><div class="hbar-label">${curView==='current'?'Institutional health':'HC deployment'} — ${d.healthPct}%</div>${d.metrics.slice(0,3).map(m=>`<div class="metric-row"><span class="metric-label${m.crit?' crit':''}">${m.l}</span><span class="metric-val">${m.v}</span></div>`).join('')}<div class="card-more">All ${d.metrics.length} metrics →</div></div>`;}).join('');}
+function renderDetail(id){const p=PILLARS.find(x=>x.id===id);const d=p[curView];const notionUrl=`https://www.notion.so/${p.notionId.replace(/-/g,'')}`;document.getElementById('detail-panel').innerHTML=`<a class="notion-link" href="${notionUrl}" target="_blank">→ Open in Notion</a><div class="detail-header"><div class="detail-stripe" style="background:${p.accent}"></div><div><div class="detail-title">${p.name} — ${d.status}</div><div class="detail-subtitle">${curView==='current'?'Current US institutional state':'HC model — solutions and deployment status'}</div></div></div><p class="detail-summary">${d.summary}</p><div class="detail-metrics">${d.metrics.map(m=>`<div class="dmc"><div class="dmc-label${m.crit?' crit':''}">${m.l}</div><div class="dmc-val">${m.v}</div></div>`).join('')}</div><button class="btn" onclick="askAI('${curView==='current'?`What are the deepest failure points in the US ${p.name} pillar and what does the collapse trajectory look like?`:`What are the HC projects and policies addressing the ${p.name} pillar and what is the implementation sequence?`}')">Explore ${p.name} via AI ↗</button>`;}
+async function askAI(query){const panel=document.getElementById('ai-panel');const resp=document.getElementById('ai-response');const label=document.getElementById('ai-query-label');panel.style.display='block';resp.innerHTML='<span class="ai-loading">// querying framework intelligence...</span>';label.textContent=`// ${query.slice(0,80)}...`;panel.scrollIntoView({behavior:'smooth',block:'nearest'});try{const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query})});if(!response.ok)throw new Error(`HTTP ${response.status}`);const data=await response.json();const text=data.content?.map(b=>b.text||'').join('')||'No response.';resp.innerHTML=text.split('\n\n').map(p=>`<p style="margin-bottom:10px">${p.replace(/\n/g,'<br>')}</p>`).join('');}catch(e){resp.innerHTML=`<span style="color:#ff6666">// error: ${e.message}</span>`;}}
+function closeAI(){document.getElementById('ai-panel').style.display='none';}
+async function checkNotion(){const status=document.getElementById('notion-status');try{const res=await fetch('/api/notion');const data=await res.json();if(data.configured){status.textContent='// notion connected — live data active';status.className='notion-status connected';}else{status.textContent='// notion not configured — using static data';}}catch(e){status.textContent='// notion unavailable — using static data';}}
+function init(){const now=new Date();document.getElementById('current-date').textContent=now.toLocaleDateString('en-US',{month:'long',year:'numeric'});renderGrid();document.getElementById('scaffold-tags').innerHTML=SCAFFOLDS.map(s=>`<button class="scaffold-tag" onclick="askAI(${JSON.stringify(s.q)})">→ ${s.n}</button>`).join('');checkNotion();}
+init();
+</script>
+</body>
+</html>
