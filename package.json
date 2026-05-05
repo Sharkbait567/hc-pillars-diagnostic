@@ -1,0 +1,7 @@
+{
+  "name": "hc-pillars-diagnostic",
+  "version": "1.0.0",
+  "description": "Horizon Coalition Four Pillars Diagnostic",
+  "private": true,
+  "engines": { "node": ">=18" }
+}
