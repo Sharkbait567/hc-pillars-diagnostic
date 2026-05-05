@@ -1,1 +1,11 @@
-{"version":2,"functions":{"api/chat.js":{"maxDuration":30},"api/notion.js":{"maxDuration":15}}}
+{
+  "version": 2,
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "functions": {
+    "api/chat.js": { "maxDuration": 30 },
+    "api/notion.js": { "maxDuration": 15 }
+  }
+}
